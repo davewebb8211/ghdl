@@ -39,8 +39,7 @@ LLVM_CONFIG=llvm-config
 #GNAT_LARGS= -static
 all: ghdl_mcode
 
-target=i686-pc-linux-gnu
-#target=x86_64-pc-linux-gnu
+target=$(shell gcc -dumpmachine)
 GRTSRCDIR=../grt
 include $(GRTSRCDIR)/Makefile.inc
 
