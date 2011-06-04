@@ -1626,7 +1626,7 @@ package body Evaluation is
                   when Iir_Kind_Floating_Type_Definition =>
                      return Eval_Floating_Image (Get_Fp_Value (Param), Expr);
                   when others =>
-                     Error_Kind ("eval_static_expr('image)", Param_Type);
+                     return Expr;
                end case;
             end;
 
