@@ -30,6 +30,7 @@ package Grt.Types is
    type Ghdl_I32 is new Integer_32;
    type Ghdl_I64 is new Integer_64;
    type Ghdl_U64 is new Unsigned_64;
+   subtype Ghdl_P64 is Ghdl_I64;
    type Ghdl_F64 is new IEEE_Float_64;
 
    type Ghdl_Ptr is new Address;

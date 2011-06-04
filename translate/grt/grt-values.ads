@@ -20,6 +20,13 @@ with Grt.Types; use Grt.Types;
 
 package Grt.Values is
    function Ghdl_Value_I32 (Str : Std_String_Ptr) return Ghdl_I32;
+   function Ghdl_Value_P64 (Str : Std_String_Ptr) return Ghdl_P64;
 private
+   generic
+      type I_Type is range <>;
+      Physical : Boolean;
+   function Ghdl_Value_Parse (Str : Std_String_Ptr) return I_Type;
+
    pragma Export (C, Ghdl_Value_I32, "__ghdl_value_i32");
+   pragma Export (C, Ghdl_Value_P64, "__ghdl_value_p64");
 end Grt.Values;
