@@ -6,6 +6,11 @@ default_pathes.ads
 *.v08
 b~*.ad?
 *-obj*.cf
-grt/*.a
+translate/grt/*.a
+translate/grt/run-bind.*
+translate/grt/grt-files*
+translate/grt/grt.lst
+translate/ghdl1-*
+oread-debug
 ghdl_gcc
 *.tar.bz2
