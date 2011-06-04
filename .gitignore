@@ -6,8 +6,6 @@ default_pathes.ads
 *.v08
 b~*.ad?
 *-obj*.cf
-*.a
-grt.lst
-lib
+grt/*.a
 ghdl_gcc
 *.tar.bz2
