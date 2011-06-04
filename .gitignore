@@ -4,3 +4,10 @@ default_pathes.ads
 *.v87
 *.v93
 *.v08
+b~*.ad?
+*-obj*.cf
+*.a
+grt.lst
+lib
+ghdl_gcc
+*.tar.bz2
