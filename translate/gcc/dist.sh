@@ -39,13 +39,13 @@
 set -e
 
 # GCC version
-GCCVERSION=4.3.4
+GCCVERSION=4.6.0
 # Machine name used by GCC
-MACHINE=i686-pc-linux-gnu
+MACHINE=x86_64-apple-darwin
 # Directory where GCC sources (and objects) stay.
 DISTDIR=$HOME/dist
 # GTKWave version.
-GTKWAVE_VERSION=1.3.72
+GTKWAVE_VERSION=3.3.29
 
 # GHDL version (extracted from version.ads)
 VERSION=`sed -n -e 's/.*GHDL \([0-9.a-z]*\) (.*/\1/p' ../../version.ads`

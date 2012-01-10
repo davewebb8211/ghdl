@@ -2,8 +2,8 @@ ortho_srcdir=..
 orthobe_srcdir=$(ortho_srcdir)/gcc
 agcc_objdir=.
 agcc_srcdir=$(ortho_srcdir)/gcc
-AGCC_GCCSRC_DIR:=$(HOME)/dist/gcc-4.3.4
-AGCC_GCCOBJ_DIR:=$(AGCC_GCCSRC_DIR)-objs/
+AGCC_GCCSRC_DIR:=$(HOME)/ghdl-osx/untar/gcc-4.6.0/
+AGCC_GCCOBJ_DIR:=$(HOME)/ghdl-osx/build/
 SED=sed
 GNATMAKE=gnatmake
 CC=gcc
@@ -15,8 +15,12 @@ include $(orthobe_srcdir)/Makefile.inc
 ORTHO_BASENAME=$(orthobe_srcdir)/ortho_gcc
 ORTHO_PACKAGE=Ortho_Gcc
 
-LIBFLAGS=$(HOME)/dist/mpfr-2.3.1/.libs/libmpfr.a $(HOME)/dist/gmp-4.2.2/.libs/libgmp.a
-#LIBFLAGS=-lmpfr -lgmp
+LIBFLAGS=$(AGCC_GCCOBJ_DIR)/mpfr/src/.libs/libmpfr.a \
+         $(AGCC_GCCOBJ_DIR)/mpc/src/.libs/libmpc.a \
+         $(AGCC_GCCOBJ_DIR)/gmp/.libs/libgmp.a \
+         $(AGCC_GCCOBJ_DIR)/zlib/libz.a \
+         $(AGCC_GCCOBJ_DIR)/intl/libintl.a \
+          -liconv -lz 
 
 $(ortho_exec): $(AGCC_DEPS) $(ORTHO_BASENAME).ads force
 	$(GNATMAKE) -m -o $@ -g -aI$(ortho_srcdir) \
