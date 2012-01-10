@@ -41,9 +41,13 @@ set -e
 # GCC version
 GCCVERSION=4.6.0
 # Machine name used by GCC
+<<<<<<< HEAD
 MACHINE=x86_64-apple-darwin
+=======
+MACHINE=$(gcc -dumpmachine)
+>>>>>>> 562f1c5b9062017da66a2627063849f7101fa02e
 # Directory where GCC sources (and objects) stay.
-DISTDIR=$HOME/dist
+DISTDIR=$HOME/src
 # GTKWave version.
 GTKWAVE_VERSION=3.3.29
 

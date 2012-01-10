@@ -22,6 +22,8 @@ with Iirs_Utils; use Iirs_Utils;
 with Std_Package; use Std_Package;
 with Flags; use Flags;
 with Std_Names;
+with Ada.Strings.Maps.Constants;
+with Ada.Strings.Fixed;
 
 package body Evaluation is
    function Get_Physical_Value (Expr : Iir) return Iir_Int64
@@ -1488,6 +1490,41 @@ package body Evaluation is
       end case;
    end Eval_Type_Conversion;
 
+   function Eval_Enumeration_Value (Expr : Iir; Enum_Type : Iir) return Iir
+   is
+      use Ada.Strings.Maps.Constants;
+      use Ada.Strings.Fixed;
+
+      Enum_Lit_List : Iir_List;
+      N_Items : Natural;
+      Lit_Str_Id : String_Id;
+      Lit_Name : Name_Id;
+      Found : Boolean;
+      Elem : Iir;
+   begin
+      Enum_Lit_List := Get_Enumeration_Literal_List (Enum_Type);
+      N_Items := Get_Nbr_Elements (Enum_Lit_List);
+      Lit_Str_Id := Get_String_Id (Expr);
+      Lit_Name := Get_Identifier (Translate (Str_Table.Image (Lit_Str_Id),
+                                             Lower_Case_Map));
+
+      Found := False;
+      for I in 0 .. N_Items - 1 loop
+         Elem := Get_Nth_Element (Enum_Lit_List, I);
+         if Get_Identifier (Elem) = Lit_Name then
+            Found := True;
+            exit;
+         end if;
+      end loop;
+
+      if not Found then
+         Error_Msg_Sem ("string " & Str_Table.Image (Lit_Str_Id)
+                          & " not in enumeration", Expr);
+      end if;
+
+      return Elem;
+   end Eval_Enumeration_Value;
+
    function Eval_Static_Expr (Expr: Iir) return Iir
    is
       Res : Iir;
@@ -1626,7 +1663,7 @@ package body Evaluation is
                   when Iir_Kind_Floating_Type_Definition =>
                      return Eval_Floating_Image (Get_Fp_Value (Param), Expr);
                   when others =>
-                     Error_Kind ("eval_static_expr('image)", Param_Type);
+                     return Expr;
                end case;
             end;
 
@@ -1805,6 +1842,22 @@ package body Evaluation is
                end if;
                Free_Name (Expr);
                return Res;
+            end;
+         when Iir_Kind_Value_Attribute =>
+            declare
+               Param : Iir;
+               Expr_Type : Iir;
+            begin
+               Param := Eval_Static_Expr (Get_Parameter (Expr));
+               Set_Parameter (Expr, Param);
+
+               Expr_Type := Get_Type (Expr);
+               case Get_Kind (Expr_Type) is
+                  when Iir_Kind_Enumeration_Type_Definition =>
+                     return Eval_Enumeration_Value (Param, Expr_Type);
+                  when others =>
+                     Error_Kind ("value attribute", Expr_Type);
+               end case;
             end;
          when Iir_Kind_Error =>
             return Expr;

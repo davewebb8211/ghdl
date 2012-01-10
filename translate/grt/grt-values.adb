@@ -22,15 +22,16 @@ package body Grt.Values is
    NBSP : constant Character := Character'Val (160);
    HT : constant Character := Character'Val (9);
 
-   function Ghdl_Value_I32 (Str : Std_String_Ptr) return Ghdl_I32
+   function Ghdl_Value_Parse (Str : Std_String_Ptr) return I_Type
    is
       S : constant Std_String_Basep := Str.Base;
       Len : constant Ghdl_Index_Type := Str.Bounds.Dim_1.Length;
       Pos : Ghdl_Index_Type := 0;
       C : Character;
       Sep : Character;
-      Val, D, Base : Ghdl_I32;
+      Val, D, Base : I_Type;
       Exp : Integer;
+      No_Lit : Boolean := False;
    begin
       --  LRM 14.1
       --  Leading [and trailing] whitespace is allowed and ignored.
@@ -64,6 +65,12 @@ package body Grt.Values is
             Pos := Pos + 1;
             exit when Pos >= Len;
             C := S (Pos);
+         elsif Physical then
+            -- LRM 2008 16.1
+            -- If T is a physical type or subtype, the parameter shall be
+            -- expressed [...] with or without a leading abstract literal.
+            No_Lit := True;
+            exit;
          else
             Error_E ("'value: decimal digit expected");
          end if;
@@ -194,10 +201,64 @@ package body Grt.Values is
          end loop;
       end if;
 
+      if Physical then
+         -- LRM 2008 16.1
+         -- The parameter shall have whitespace between any abstract
+         -- literal and the unit name. If T is a physical type or subtype,
+         -- the parameter shall be expressed using a string representation
+         -- of any of the unit names of T, with or without a leading
+         -- abstract literal.
+
+         while Pos < Len and then S (Pos) = ' ' loop
+            Pos := Pos + 1;
+         end loop;
+
+         if Val = 0 and No_Lit Then
+            -- No leading abstract literal
+            Val := 1;
+         end if;
+
+         declare
+            Left : Ghdl_Index_Type;
+            Scale : I_Type;
+            Unit_Len : Ghdl_Index_Type;
+         begin
+            Left := Len - Pos;
+            Unit_Len := 2;
+
+            if Left >= 2 and then (S (Pos) = 'f' and S (Pos + 1) = 's') then
+               Scale := 1;
+            elsif Left >= 2 and then (S (Pos) = 'p' and S (Pos + 1) = 's') then
+               Scale := 1000;
+            elsif Left >= 2 and then (S (Pos) = 'n' and S (Pos + 1) = 's') then
+               Scale := 1000_000;
+            elsif Left >= 2 and then (S (Pos) = 'u' and S (Pos + 1) = 's') then
+               Scale := 1000_000_000;
+            elsif Left >= 2 and then (S (Pos) = 'm' and S (Pos + 1) = 's') then
+               Scale := 1000_000_000_000;
+            elsif Left >= 3 and then (S (Pos) = 's' and S (Pos + 1) = 'e'
+                                        and S (Pos + 2) = 'c') then
+               Scale := 1000_000_000_000_000;
+               Unit_Len := 3;
+            elsif Left >= 3 and then (S (Pos) = 'm' and S (Pos + 1) = 'i'
+                                        and S (Pos + 2) = 'n') then
+               Scale := 60 * 1000_000_000_000_000;
+               Unit_Len := 3;
+            elsif Left >= 2 and then (S (Pos) = 'h' and S (Pos + 1) = 'r') then
+               Scale := 60 * 60 * 1000_000_000_000_000;
+            else
+               Error_E ("'value: invalid physical unit name");
+            end if;
+
+            Val := Val * Scale;
+            Pos := Pos + Unit_Len;
+         end;
+      end if;
+
       --  LRM 14.1
       --  [Leading] and trailing whitespace is allowed and ignored.
       --
-      --  GHDL: allow several leading whitespace.
+      --  GHDL: allow several trailing whitespace.
       while Pos < Len loop
          case S (Pos) is
             when ' '
@@ -210,6 +271,20 @@ package body Grt.Values is
       end loop;
 
       return Val;
+   end Ghdl_Value_Parse;
+
+   function Ghdl_Value_I32 (Str : Std_String_Ptr) return Ghdl_I32
+   is
+      function Ghdl_Value_Parse_I32 is new Ghdl_Value_Parse (Ghdl_I32, False);
+   begin
+      return Ghdl_Value_Parse_I32(Str);
    end Ghdl_Value_I32;
+
+   function Ghdl_Value_P64 (Str : Std_String_Ptr) return Ghdl_P64
+   is
+      function Ghdl_Value_Parse_P64 is new Ghdl_Value_Parse (Ghdl_P64, True);
+   begin
+      return Ghdl_Value_Parse_P64(Str);
+   end Ghdl_Value_P64;
 
 end Grt.Values;
