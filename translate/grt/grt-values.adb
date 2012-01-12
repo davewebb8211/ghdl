@@ -213,7 +213,7 @@ package body Grt.Values is
             Pos := Pos + 1;
          end loop;
 
-         if Val = 0 and No_Lit Then
+         if Val = 0 and No_Lit then
             -- No leading abstract literal
             Val := 1;
          end if;

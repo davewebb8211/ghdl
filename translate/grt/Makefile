@@ -18,7 +18,7 @@
 GRT_FLAGS=-g -O
 GRT_ADAFLAGS=-gnatn
 
-ADAC=gcc-4.4
+ADAC=gcc
 CC=gcc
 GNATFLAGS=$(CFLAGS) -gnatf -gnaty3befhkmr -gnatwlu
 GHDL1=../ghdl1-gcc
